@@ -1,0 +1,589 @@
+\documentclass[12pt]{article}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.markings}
+
+%\usepackage{geometry}
+%\geometry{paperwidth=170mm, paperheight=240mm, left=42pt, top=40pt, textwidth=280pt, marginparsep=20pt, marginparwidth=100pt, textheight=560pt, footskip=40pt}
+
+%\documentclass[12pt]{amsart}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{sidecap}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{verse}
+\usepackage{hyperref}
+\usepackage{tensor}
+\usepackage{marginnote}
+\usepackage{wrapfig}
+\usepackage[font={small}]{caption}
+
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+\newcommand{\gke}{\texttt{Gkeyll}}
+
+\newcommand{\attrib}[1]{
+\nopagebreak{\raggedleft\footnotesize #1\par}\vskip0.1in}
+\renewcommand{\poemtitlefont}{\normalfont\large\itshape\centering}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+\newtheorem{principle}{Principle}
+\theoremstyle{definition}
+\newtheorem{exmp}{Example}
+
+\theoremstyle{definition}
+\newtheorem{entry}{Entry}
+
+\theoremstyle{definition}
+\newtheorem{exer}{Exercise}
+\newtheorem{prob}{Problem}
+
+% auto-scaled figured
+\newcommand{\incfig}{\centering\includegraphics}
+\setkeys{Gin}{width=0.9\linewidth,keepaspectratio}
+
+% Commonly used macros
+\newcommand{\eqr}[1]{Eq.\thinspace(#1)}
+\newcommand{\pfrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pfracc}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+\newcommand{\pfraccc}[1]{\frac{\partial^2 }{\partial #1^2}}
+\newcommand{\pfraca}[1]{\frac{\partial}{\partial #1}}
+\newcommand{\pfracb}[2]{\partial #1/\partial #2}
+\newcommand{\pfracbb}[2]{\partial^2 #1/\partial #2^2}
+\newcommand{\spfrac}[2]{{\partial_{#1}} {#2}}
+\newcommand{\mvec}[1]{\mathbf{#1}}
+\newcommand{\bmvec}[1]{\breve{\mathbf{#1}}}
+\newcommand{\gvec}[1]{\boldsymbol{#1}}
+\newcommand{\script}[1]{\mathpzc{#1}}
+\newcommand{\gcn}{\nabla}
+\newcommand{\gcs}{\nabla_{\mvec{x}}}
+\newcommand{\gvs}{\nabla_{\mvec{v}}}
+
+\newcommand{\resetall}{\setcounter{entry}{0}\setcounter{equation}{0}\setcounter{footnote}{0}}
+
+\newcommand{\cbas}[1]{\gvec{\sigma}_{#1}}
+\newcommand{\xbas}{\gvec{\sigma}_{1}}
+\newcommand{\ybas}{\gvec{\sigma}_{2}}
+\newcommand{\zbas}{\gvec{\sigma}_{3}}
+
+\newcommand{\basis}[1]{\mvec{e}_{#1}}
+\newcommand{\bbasis}[1]{\breve{\mvec{e}}_{#1}}
+\newcommand{\dbasis}[1]{\mvec{e}^{#1}}
+\newcommand{\bdbasis}[1]{\breve{\mvec{e}}^{#1}}
+
+\newcommand{\nbasis}[1]{\hat{\mvec{e}}_{#1}}
+\newcommand{\ndbasis}[1]{\hat{\mvec{e}}^{#1}}
+
+\newcommand{\gbasis}[2]{\mvec{#1}_{#2}}
+\newcommand{\gdbasis}[2]{\mvec{#1}^{#2}}
+
+\newcommand{\veps}{\gvec{\varepsilon}}
+\newcommand{\bdum}{\breve{\_}}
+\newcommand{\vecspace}{\mathcal{V}}
+\newcommand{\tvecspace}{T_pM}
+\newcommand{\vnorm}[1]{\lVert{#1}\rVert}
+
+\newcommand{\gsel}[2]{\langle{#1}\rangle_{#2}}
+\newcommand{\gzsel}[1]{\langle {#1} \rangle}
+
+\newcommand{\uln}[1]{\underline{#1}}
+
+\newcommand{\dprod}{\mathfrak{D}}
+
+\newcommand{\dvol}{\thinspace d^3\mvec{x}}
+\newcommand{\dsurf}{\thinspace ds}
+
+% Make the items smaller
+\newcommand{\cramplist}{
+	\setlength{\itemsep}{0in}
+	\setlength{\partopsep}{0in}
+	\setlength{\topsep}{0in}}
+\newcommand{\cramp}{\setlength{\parskip}{.5\parskip}}
+\newcommand{\zapspace}{\topsep=0pt\partopsep=0pt\itemsep=0pt\parskip=0pt}
+
+\newcounter{probnum}
+\setcounter{probnum}{1}
+
+%\marginpar{\raggedleft\footnotesize Margin note}
+
+\title{Homework 2: Hyperbolic Partial Differential Equations}%
+\author{AST560 2025}%
+\date{Due: Tuesday April 8th 2025}
+
+\begin{document}
+\maketitle
+
+\section*{Problem \arabic{probnum}: Eigensystem of Euler Equations}
+\stepcounter{probnum}
+
+Consider the Euler equations in 1D conservative form
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  0
+\end{align*}
+where
+\begin{align*}
+  E = \frac{1}{2}\rho u^2 + \frac{p}{\gamma-1}.
+\end{align*}
+Show that these equations can also be written in the
+\emph{quasi-linear} form
+\begin{align*}
+  \pfrac{\mvec{V}}{t} + \mvec{B}\pfrac{\mvec{V}}{x} = 0
+\end{align*}
+where $\mvec{V} = [\rho, u, p]^T$ and $\mvec{B}$ is a matrix you
+should determine. Compute the eigenvalues and right eigenvectors of
+$\mvec{B}$ and use them to compute the eigenvectors of the flux
+Jacobian of the conservative system. Hence show that the Euler
+equations are indeed hyperbolic as long as $p>0$ and $\rho > 0$.
+
+\section*{Problem \arabic{probnum}: The effect of oscillatory source
+  terms}
+\stepcounter{probnum}
+
+Source terms can significantly change the physics contained in the
+homogenous system. As an example consider the Euler equations with an
+oscillatory source as follows:
+\begin{align*}
+  \frac{\partial}{\partial{t}}
+  \left[
+    \begin{matrix}
+      \rho \\
+      \rho u \\
+      \rho v \\      
+      E
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial}{\partial{x}}
+  \left[
+    \begin{matrix}
+      \rho u \\
+      \rho u^2 + p \\
+      \rho u v \\
+      (E+p)u
+    \end{matrix}
+  \right]
+  =
+  \left[
+    \begin{matrix}
+      0 \\
+      \rho v\Omega \\
+      -\rho u\Omega  \\
+      0
+    \end{matrix}
+  \right]  
+\end{align*}
+where now
+\begin{align*}
+  E = \frac{1}{2}\rho (u^2+v^2) + \frac{p}{\gamma-1}
+\end{align*}
+and where $\Omega$ is a constant with units of inverse time. Linearize
+this system around a uniform non-flowing ($u_0 = v_0 = 0$) background
+$\rho_0, p_0$ and by considering solutions of the form
+$e^{-i\omega t}e^{i kx }$ derive the dispersion relation
+\begin{align*}
+  \omega = \pm (k^2 c_{s0}^2 + \Omega^2)^{1/2}
+\end{align*}
+where $c_{s0} = \sqrt{\gamma p_0/\rho_0}$. Clearly, this system only
+contains propagating but \emph{dispersive} waves, however it is not
+hyperbolic as the dispersion relation is not \emph{linear}. Derive the
+exact solution to the linearized system in terms of the perturbations
+of the x-component of the velocity $u_1(x,t)$.
+
+Finally, consider the initial velocity field
+\begin{align*}
+  u_1(x,0) = U_0 \sum_{n=0}^N \frac{i}{2n + 1} e^{i k_n x}
+\end{align*}
+for $x\in [0,1]$ and where $k_n = 2\pi (2n+1)$. For
+$N\rightarrow \infty$ this represents a step function. Take $N=100$
+and plot the exact solution of the perturbed density, $\rho_1(x,t)$,
+at $t=1000$ for $\rho_0 = p_0 = 1$, $\gamma = 2$ and $\Omega =
+10$. (If you make a movie of the exact solution in time you can see
+the initial spectrum of waves disperse and form complex patterns. For
+$\Omega = 0$ the initial condition will simply travel with sound speed
+as in this case the system becomes hyperbolic and the waves have the
+same group and phase velocities).
+
+\section*{Problem \arabic{probnum}: Eigenvalues of ideal MHD equations}
+\stepcounter{probnum}
+
+The ideal-MHD equations can be written in non-conservation law form
+\begin{align*}
+  \frac{\partial \rho}{\partial t}+ \mvec{u}\cdot\nabla\rho + \rho\nabla\cdot\mathbf{u}&=0 \\
+  \frac{\partial \mathbf{u}}{\partial t}+\mathbf{u} \cdot \nabla
+  \mathbf{u}
+  +\frac{\nabla p}{\rho} &=
+                           {\frac{1}{\mu_{0}\rho}(\nabla \times \mathbf{B}) \times \mathbf{B}} \\
+    \frac{\partial p}{\partial t}+\mathbf{u} \cdot \nabla p+\gamma p
+  \nabla \cdot \mathbf{u} &= 0 \\
+  {\frac{\partial \mathbf{B}}{\partial t}-\nabla \times(\mathbf{u} \times \mathbf{B})} &= {0}
+\end{align*}
+with the constraint $\nabla\cdot\mvec{B} = 0$. Write this equation in
+quasilinear form in 1D and compute the eigenvalues, showing they are
+all real if $\rho>0$ and $p>0$.
+
+\section*{Problem \arabic{probnum}: Shock solution for Burgers'
+  equation}
+\stepcounter{probnum}
+
+In class we wrote down the solution to Burgers' equation for initial
+condition $u(x,0) = u_l$ for $x<0$ and $u(x,0) > u_r$ for $x>0$ and
+where $u_l > u_r$. That solution was:
+\begin{align*}
+  u(x,t) &= u_l \quad x < st \\
+  u(x,t) &= u_r \quad x > st.
+\end{align*}
+Show that this indeed is a weak-solution of the Burgers' equation,
+that is it satisfies Equation 53 in the notes.
+
+\section*{Problem \arabic{probnum}: Reimann problem for Maxwell
+  equations}
+\stepcounter{probnum}
+
+Find the exact solution to the the Reimann problem for Maxwell
+equations in 1D:
+\begin{align*}
+  \frac{\partial }{\partial t}
+  \left[
+    \begin{matrix}
+      E_y \\
+      E_z \\
+      B_y \\
+      B_z
+    \end{matrix}
+  \right]
+  +
+  \frac{\partial }{\partial x}
+  \left[
+    \begin{matrix}
+      c^2B_z \\
+      -c^2B_y \\
+      -E_z \\
+      E_y
+    \end{matrix}
+  \right]
+  =
+  0.
+\end{align*}
+Note you do not actually need to compute the complete eigensystem of
+these equations, though that is one way to solve the problem.
+
+\section*{Problem \arabic{probnum}: Changing representations}
+\stepcounter{probnum}
+
+In class we stated the principle that one must be aware of the
+representation of the solution one uses in a scheme. For example, one
+must not confuse \emph{cell-center values}, for example, with
+\emph{cell-averages}. Say you were values $f_i$, $i=1,\ldots,N$
+evaluated at \emph{cell centers}. How will you convert this data to
+\emph{sufficiently high order} cell-average values to use in a
+third-order finite-volume code?
+
+Say you would like to compute the following integral
+\begin{align*}
+  E = \sum_j \int_{I_j} f g \thinspace dx
+\end{align*}
+This is not so simple as, in general, $(f g)_i \neq f_i g_i$ (that is,
+the cell-average of the product is not the product of
+cell-averages). How can this integral be computed carefully such that
+the underlying order of the scheme (say third order) can be preserved?
+Derive the stencil to do so.
+
+\section*{Problem \arabic{probnum}: (Optional, Challenging) Implement
+  the MUSCL-Hancock Scheme in 1D}
+\stepcounter{probnum}
+
+This is an optional programming problem. I encourage you to at least
+understand the algorithm so you have an idea on how a solver for a
+hyperbolic PDE is constructed, including choosing the limiter,
+numerical fluxes and doing time-stepping. In this problem you will
+implement the MUSCL-Hancock scheme for the 1D Euler equations. The
+complete scheme is described in the Appendix.
+
+You can do a lot of interesting problems even with such a simple
+solver like the MUSCL-Hancock solver, and with very little work extend
+it to multiple dimensions. For example, solve the Riemann problem with
+the following initial conditions. Simulation is initialized with a
+shock at $x=0.3$, with left and right states
+\begin{align*}
+  \left[
+    \begin{matrix}
+      \rho_l \\
+      u_l \\
+      p_l
+    \end{matrix}
+  \right]
+  = 
+  \left[
+    \begin{matrix}
+      1 \\
+      0.75 \\
+      1.0
+    \end{matrix}
+  \right],
+  \qquad
+  \left[
+    \begin{matrix}
+      \rho_r \\
+      u_r \\
+      p_r
+    \end{matrix}
+  \right]
+  = 
+  \left[
+    \begin{matrix}
+      0.125 \\
+      0.0 \\
+      0.1
+    \end{matrix}
+  \right].
+\end{align*}
+to $t=0.2$. This is a Sod-shock problem with sonic point in
+rarefaction. Domain is $x \in [0,1]$ with adiabatic constant of $1.4$.
+
+\appendix
+
+\section{The MUSCL-Hancock Scheme}
+
+In this document I outline the MUSCL-Hancock scheme for the solution
+of 1D hyperbolic partial differential equations. This scheme is a
+predictor-corrector scheme and is second order accurate in both space
+and time. We start from the system of hyperbolic equations
+\begin{align}
+  \pfrac{Q}{t} + \pfrac{F}{x} = 0 \label{eq:cons_form}
+\end{align}
+where $Q(x,t)$ is a vector of $m$ conserved quantities and $F=F(Q)$
+are fluxes. In the following we denote the flux Jacobian as
+$A\equiv\pfracb{F}{Q}$ and the eigenvalues as $\lambda^p$ and the
+right- and left-eigenvectors as $r^p$ (column vector) and $l^p$ (row
+vector), for $p=1,\ldots,m$, respectively.
+
+We will also assume (though this is not required) that the system can
+be put into the non-conservative (``primitive'') quasi-linear form
+\begin{align}
+  \pfrac{V}{t} + A_p\pfrac{V}{x} = 0 \label{eq:prim_form}
+\end{align}
+where $V(x,t)$ are a vector of $m$ primitive quantities and $A_p(V)$
+is a $m\times m$ matrix. Note that any invertible transform
+$Q=\varphi(V)$ will transform \eqr{\ref{eq:cons_form}} into
+\eqr{\ref{eq:prim_form}}.
+
+\subsection{The basic algorithm}
+
+The essential idea of the MUSCL-Hancock scheme is to use cell averages
+to predict the values of the conserved (or primitive) quantities at
+cell edges at $t+\Delta t/2$ and then use these predicted values to
+update the solution to $t+\Delta t$. The steps in the algorithm are as
+follows.
+\begin{enumerate}
+
+\item Given cell averages reconstruct a (possibly limited) linear
+  representation of the variables inside each cell. This can be done
+  for either the conserved variables or the primitive
+  variables. Hence, in each cell we represent the solution as
+  \begin{align}
+    W(x,t) = W_i + \frac{x-x_i}{\Delta x}\delta W_i \label{eq:lin_recon}
+  \end{align}
+  for $x_{i-1/2}<x<x_{i+1/2}$ and where $x_i \equiv
+  (x_{i+1/2}+x_{i-1/2})/2$, $\Delta x \equiv x_{i+1/2}-x_{i-1/2}$ and
+  $\delta W_i$ are the reconstructed \emph{slopes}. In
+  \eqr{\ref{eq:lin_recon}} $W(x,t)$ stands for the variables we are
+  reconstructing (either primitive or conserved variables). To
+  determine the slopes we can use an averaging procedure
+  \begin{align}
+    \delta W_i = \mathrm{ave}(W_i-W_{i-1}, W_{i+1}-W_i) \label{eqn:slope_recon}
+  \end{align}
+  where $\mathrm{ave}(a, b)$ is a suitable ``averaging'' function,
+  applied to each component of the vector. Note that using the
+  standard average $\mathrm{ave}(a, b) = (a+b)/2$ leads to a
+  central-difference computed slope, while $\mathrm{ave}(a, b) = 0$
+  leads to a zero slope or a first-order representation in each
+  cell. Other forms of the average function can be used to avoid
+  spurious oscillations around discontinuities and prevent the
+  formation of unphysical states. See the next section for more
+  details on the reconstruction and averaging steps.
+  
+\item Use the slopes to predict the solution at half time-step,
+  $\Delta t/2$. If the primitive variable slopes have been determined
+  then use the update formula
+  \begin{align}
+    \tilde{V}_j = V_j -\frac{\Delta t}{2 \Delta x} A_p(V_i) \delta V_i
+  \end{align}
+  If the conserved variable slopes have been determined then use the
+  update formula
+  \begin{align}
+    \tilde{Q}_j = Q_j -\frac{\Delta t}{2 \Delta x} A(Q_i) \delta Q_i
+  \end{align}
+  In these formulas $\tilde{V}_j$ and $\tilde{Q}_j$ denote the
+  predicted values in cell $\script{C}_i$.
+
+\item Use the predicted solution to compute the predicted values at
+  cell edges. As the solution is assumed to be linear, the edge values
+  are
+  \begin{align}
+    W_{i-1/2}^+ &= \tilde{W}_i - \delta W_i/2 \\
+    W_{i+1/2}^- &= \tilde{W}_i + \delta W_i/2
+  \end{align}
+  Note that we are using the predicted solution at $t+\Delta t/2$ but
+  the slopes at $t$ to compute the edge values. This gives the edge
+  values at $t+\Delta t/2$ to $O(\Delta t^2)$.
+
+\item Use the edge values in a Reimann solver (a numerical flux) to
+  update the conserved variables to time $t$
+  \begin{align}
+    Q^{n+1}_i = Q_i^n - \frac{\Delta t}{\Delta x}(F_{i+1/2}-F_{i+1/2}) \label{eqn:corrector_step}
+  \end{align}
+  where $F_{i\pm 1/2}$ are the numerical fluxes computed from the
+  predicted edge values:
+  \begin{align}
+    F_{i-1/2} \equiv F(W_{i-1/2}^-, W_{i-1/2}^+).
+  \end{align}
+  See the last section for details on numerical fluxes that can be
+  used in \eqr{\ref{eqn:corrector_step}}.
+
+\end{enumerate}
+
+\subsection{Reconstruction and limiting}
+
+It is simplest to reconstruct each of the conserved variables or the
+primitive variables directly. This procedure is called
+\emph{component} reconstruction and limiting. However, a better
+approach that results in smoother solutions is to limit the
+\emph{characteristic} variables instead. In this case the limiting is
+done after projecting the differences on left eigenvectors of the flux
+Jacobian. Let $L(Q)$ be the matrix of left eigenvectors arranged as
+rows and let $R(Q)$ be the matrix of right eigenvectors arranged as
+columns. Note that $L=R^{-1}$. Then the reconstruction becomes,
+instead of \eqr{\ref{eqn:slope_recon}},
+\begin{align}
+  \delta W_i = R(Q_i)\ \mathrm{ave}(\Delta^i_{i-1}, \Delta^i_i)
+\end{align}
+where $\Delta^j_i = L(Q_j)(W_{i+1}-W_i)$. If the averaging function is
+non-linear then even for a linear system of the equations the
+characteristic limiting and component limiting do not coincide.
+
+There are several possible averaging function one can use (besides the
+zero and simple-averages). For example, the following choices are all
+designed to avoid unphysical oscillations around discontinuities
+\begin{itemize}
+  \item Minmod limiting\footnote{A more general expression is
+      \begin{align}
+        \mathrm{ave}(a,b) = 
+        \begin{cases}
+          \mathrm{minmod}((a+b)/2, \theta a, \theta b)& \text{if $ab>0$} \\
+          0& \text{if $ab\le 0$}
+        \end{cases}
+      \end{align}
+      Where $1\le \theta \le 2$. Picking a smaller value of $\theta$
+      leads to a more diffusive limiting.
+    }
+    \begin{align}
+      \mathrm{ave}(a,b) = 
+      \begin{cases}
+        \mathrm{minmod}((a+b)/2, 2a, 2b)& \text{if $ab>0$} \\
+        0& \text{if $ab\le 0$}
+      \end{cases}
+    \end{align}
+
+  \item Supebee limiting
+    \begin{align}
+      \mathrm{ave}(a,b) = 
+      \begin{cases}
+        \mathrm{minmod}\left(
+          \mathrm{maxmod}(a,b), \mathrm{minmod}(2a,2b)
+          \right)& \text{if $ab>0$} \\
+        0& \text{if $ab\le 0$}
+      \end{cases}
+    \end{align}
+
+  \item Epsilon limiting (van Albada limiter)
+    \begin{align}
+      \mathrm{ave}(a,b) = \frac{(b^2+\epsilon^2)a + (a^2+\epsilon^2)b}{a^2+b^2+2\epsilon^2}
+    \end{align}
+    where $\epsilon^2 \sim \Delta x^3$ is a parameter.
+\end{itemize}
+In the above expressions the $\mathrm{mimod}(a_0,a_1,\ldots)$ function
+is defined as
+\begin{align}
+  \mathrm{minmod}(a_0,a_1,\ldots) =
+  \begin{cases}
+    \min(a_0,a_1,\ldots)& \text{if $a_i>0$, for all $i=0,1,\ldots$} \\
+    \max(a_0,a_1,\ldots)& \text{if $a_i<0$, for all $i=0,1,\ldots$} \\
+    0& \text{otherwise}
+  \end{cases}
+\end{align}
+
+None of the above reconstructions (except the zero-average) ensures
+that invariant domains are preserved. Another way to put it is that
+unless something special is done the scheme may not be positivity
+preserving. For example, while solving the Euler equations the
+predicted edge values of density and pressure may become negative,
+leading to unphysical states. A simple but crude way to fix this is to
+set slopes of \emph{all} quantities in a cell to zero if any of the
+values at either cell edge becomes negative. More nuanced methods can
+also be develop by self-consistently\footnote{What this means is that
+  if the slopes of density and pressure are adjusted, the complete
+  predicted solution (and hence the edge values) must be recomputed
+  with the new slopes.} adjusting the slopes just enough to ensure
+invariant domains are preserved.
+
+\subsection{Numerical fluxes}
+
+A wide variety of numerical fluxes can be used to compute the edge
+fluxes needed in \eqr{\ref{eqn:corrector_step}}. It is important to
+use a numerical flux that preserves positivity. This combined with a
+positivity preserving reconstruction will ensure, under a suitable CFL
+condition, the positivity of the complete scheme.
+
+The simplest numerical flux to use is the local Lax flux (also called
+the Rusanov flux). This is given by
+\begin{align}
+  F(Q^-,Q^+) = \frac{F(Q^-) + F(Q^+)}{2} - c\frac{Q^+- Q^-}{2}
+\end{align}
+Here $c>0$ is a parameter given by
+\begin{align}
+  c = \sup_{Q=Q^-,Q^+} \sup_p | \lambda^p |. \label{eqn:lax_c}
+\end{align}
+In other words, the parameter $c$ is the maximum of the absolute
+eigenvalues computed from the left and right state. Though diffusive,
+the Lax flux is the simplest in the sense that it requires the minimum
+amount of information about the equation system being solved: all one
+needs (besides the flux function) is an \emph{estimate} of the maximum
+eigenvalue. Note that any $c$ greater than the one computed by
+\eqr{\ref{eqn:lax_c}} can be used. More complex numerical flux
+functions that incorporate more information about the equation system
+can also be used. These flux functions can reduce diffusion at the
+cost of greater complexity.
+
+\end{document}
