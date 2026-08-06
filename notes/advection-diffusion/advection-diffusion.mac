@@ -10,8 +10,11 @@ fh : lagrange(p, varname='x)$
 diff1 : subst(x=0, diff(fh, x, 1)), fullratsimp$
 diff2 : subst(x=0, diff(fh, x, 2)), fullratsimp$
 
-fp : subst(x=dx/2, fh)$
-fm : subst(x=-dx/2, fh)$
+/** Construct a Lagrange interpolation polynomial on a 3-cell stencil */
+p4 : [ [-2*dx, fLL], [-dx, fL], [ 0, f0], [ dx, fR], [ 2*dx, fRR] ]$
+fh4 : lagrange(p4, varname='x)$
+
+diff2 : subst(x=0, diff(fh4, x, 2)), fullratsimp$
 
 tay(N) := T[0] + sum(T[i]*x^i/factorial(i),i,1,N)$
 
@@ -27,7 +30,7 @@ eFm : subst(slist, fm) - subst(x=-dx/2,tay5), expand$
 /** Fourier analysis */
 fur(x) := exp(%i*k*x)$
 
-slist : [f0 = subst(x=0,fur(x)), fR = subst(x=dx,fur(x)), fL = subst(x=-dx,fur(x))]$
+slist : [f0 = subst(x=0,fur(x)), fR = subst(x=dx,fur(x)), fRR = subst(x=2*dx,fur(x)), fL = subst(x=-dx,fur(x)), fLL = subst(x=-2*dx,fur(x))]$
 fDiff1 : subst(slist, diff1), expand$
 fDiff2 : subst(slist, diff2), expand$
 

@@ -5,7 +5,7 @@ BUILD_DATE = $(shell date)
 GIT_TIP = $(shell git describe --abbrev=12 --always --dirty=+)
 
 ARCH_FLAGS ?= -march=native
-CFLAGS ?= -O3 -g -ffast-math -fPIC -MMD -MP -DGIT_COMMIT_ID=\"$(GIT_TIP)\" -DGKYL_BUILD_DATE="${BUILD_DATE}" -DGKYL_GIT_CHANGESET="${GIT_TIP}"
+CFLAGS ?= -O3 -g -ffast-math -fPIC -MMD -MP -DGIT_COMMIT_ID=\"$(GIT_TIP)\" -DGKYL_BUILD_DATE="'${BUILD_DATE}'" -DGKYL_GIT_CHANGESET="${GIT_TIP}"
 LDFLAGS = 
 PREFIX ?= ${HOME}/gkylsoft
 INSTALL_PREFIX ?= ${PREFIX}
@@ -36,6 +36,13 @@ INCS := -Iminus -Iminus/STC/include -Izero $(KERN_INCLUDES)
 EXEC_LIB_DIRS = 
 EXEC_EXT_LIBS = -lm -lpthread -ldl
 EXEC_LIBS = -Lbuild ${LLIB} ${EXEC_EXT_LIBS}
+
+G0_INC_DIR = ${PREFIX}/gminus/include
+G0_LIB_DIR = ${PREFIX}/gminus/lib
+G0_LIB = -lg0core -lm 
+
+TCC_EXEC := ${PREFIX}/tcc/bin/tcc
+TCC_RUN_CMD := -run $$\@
 
 unit: $(LLIB) $(UNITS) ## Build unit tests
 
@@ -72,8 +79,15 @@ valcheck: ${UNITS}   ## Run valgrind on unit test
 INSTALL_HEADERS := $(shell ls zero/gkyl_*.h | grep -v "priv" | sort)
 INSTALL_HEADERS += $(shell ls minus/*.h)
 
+.PHONY: cgkeyll-install
+cgkeyll-install:
+	$(MKDIR_P) ../${BUILD_DIR}/gkeyll/
+	rm -rf ${BUILD_DIR}/cgkeyll
+	echo "#!/bin/sh" >> ${BUILD_DIR}/cgkeyll
+	echo ${TCC_EXEC} ${CFLAGS} -I. -I${G0_INC_DIR} -L ${G0_LIB_DIR} ${G0_LIB} ${TCC_RUN_CMD} >> ${BUILD_DIR}/cgkeyll
+
 .PHONY: install
-install: all
+install: all cgkeyll-install
 # Construct install 
 	$(MKDIR_P) ${INSTALL_PREFIX}/gminus/include
 	${MKDIR_P} ${INSTALL_PREFIX}/gminus/lib
@@ -84,6 +98,9 @@ install: all
 	./minus/gengkylzeroh.sh > ${INSTALL_PREFIX}/gminus/include/gkylzero.h
 # libraries
 	cp -f $(LLIB) ${INSTALL_PREFIX}/gminus/lib/libg0core.a
+# executables
+	cp -f ${BUILD_DIR}/cgkeyll ${INSTALL_PREFIX}/gminus/bin/cgkeyll
+	chmod u+x ${INSTALL_PREFIX}/gminus/bin/cgkeyll
 # Examples
 	test -e config.mak && cp -f config.mak ${INSTALL_PREFIX}/gminus/share/config.mak || echo "No config.mak"
 
