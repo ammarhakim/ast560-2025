@@ -213,6 +213,7 @@ approximation in which these edge values are \emph{recovered}
 write this as
 \begin{align}
   \pfrac{Q_j}{t} + \frac{G(Q_{j+1/2}^+,Q_{j+1/2}^-) - G(Q_{j-1/2}^+,Q_{j-1/2}^-)}{\Delta x} = 0
+  \label{eq:dq-dt}
 \end{align}
 where $G(Q_L,Q_R)$ the \emph{numerical-flux} function and
 $Q_{j\pm 1/2}^+$ and $Q_{j\pm 1/2}^-$ are recovered values just the
@@ -280,11 +281,11 @@ $|\lambda_p| = \lambda_p^+ - \lambda_p^-$. Using the latter identity
 the numerical flux can be written as
 \begin{align}
 G(Q_R,Q_L) = \frac{1}{2}\big(F(Q_R)+F(Q_L)\big) - \frac{1}{2}(A^+\Delta Q_{R,L} - A^-\Delta Q_{R,L})
+\label{eq:num-flux-1}
 \end{align}
 where the \emph{fluctuations} $A^\pm\Delta Q$ are defined as
 \begin{align}
-A^\pm\Delta Q_{R,L} \equiv \sum_p r^p \lambda^\pm_p (w_R^p-w_L^p) = \sum_p r^p \lambda^\pm_p l^p(Q_R-Q_L).
-\label{eq:fluct}
+A^\pm\Delta Q_{R,L} \equiv \sum_p r^p \lambda^\pm_p (w_R^p-w_L^p) = \sum_p r^p \lambda^\pm_p l^p(Q_R-Q_L). \label{eq:fluct}
 \end{align}
 The fluctuations satisfy the \emph{flux-difference} or
 \emph{flux-jump} identity
@@ -296,6 +297,7 @@ A^+\Delta Q_{R,L} + A^-\Delta Q_{R,L} =
 Using this identity, the numerical flux can also be written as
 \begin{align}
 G(Q_R,Q_L) = F(Q_L) + A^-\Delta Q_{R,L} = F(Q_R) - A^+\Delta Q_{R,L}.
+\label{eq:num-flux-2}
 \end{align}
 
 For further use, we will introduce the concept of a \emph{wave}. We
@@ -317,11 +319,94 @@ the two values $Q_{R,L}$ at each interface. Which one should we use to
 compute the flux Jacobian and from that the eigenvalues and the
 right/left eigenvectors?
 
+Let us define an averaged state
+\begin{align}
+  \overline{Q} = \overline{Q}(Q_L, Q_R)
+\end{align}
+We can use this averaged state to compute the eigensystem of the flux
+Jacobian. The key consistency constraint we must ensure is that the
+\emph{flux-jump identity, \eqr{\ref{eq:flux-jump}}, must be
+  satisfied}. We call an averaging procedure that satisfies the
+flux-jump condition as \emph{Roe averages}. Clearly, simple arithmetic
+averages may not work.
+
+In the next section we describe an alternate procedure in which the
+flux-jump condition is \emph{always satisfied} independent of the
+choice of $\overline{Q}$ by redefining the waves and fluctuations.
+
 \section{The $f$-wave Approach}
 
+Coming up with a Roe averaging procedure for a complex, nonlinear
+system of hyperbolic PDEs is not trivial. As an alternative we can
+construct the waves and fluctuations in such a way that the flux-jump
+condition is always satisfied independent of how $\overline{Q}$ is
+defined. This allows, for example, using simnple arithmetic averages
+instead. To do this, we redefine the waves as
+\begin{align}
+  \mathcal{Z}^p_{R,L} \equiv r^p l^p\left[ F(Q_R) -F(Q_L) \right].
+\end{align}
+Notice that we are projecting the jump in \emph{flux} rather than the
+conserved variables in this expression. We call this approach the
+\emph{$f$-wave approach} in contrast to the \emph{$q$-wave approach}
+in which we split instead the jump in conserved variables.
 
+Using these waves we now compute the fluctuations as
+\begin{align}
+  A^+\Delta Q_{R,L} &= \sum_{\lambda_p>0} \mathcal{Z}_{R,L}^p + \frac{1}{2} \mathbb{Z} \\
+  A^-\Delta Q_{R,L} &= \sum_{\lambda_p<0} \mathcal{Z}_{R,L}^p + \frac{1}{2} \mathbb{Z}
+\end{align}
+where
+\begin{align}
+  \mathbb{Z} = \sum_{\lambda_p = 0} \mathcal{Z}^p_{R,L}
+\end{align}
+is the sum of all the eigenvectors with eigenvalue zero. Now, as we
+split the jump in flux directly, the flux-jump condition is satisfied
+\emph{by definition}, independent of what averaged state
+$\overline{Q}$ we used in computing the eigensystem of the flux
+Jacobian.
 
+\section{Semi-Discrete Update Formulas}
 
+\subsection{First-Order Scheme}
+
+In a first-order scheme we take the solution to be piecewise
+constant. With this ansatz we have that the values of $Q$ the left and
+right edges of cell $j$ are the same:
+\begin{align}
+  Q_{j+1/2}^- = Q_{j-1/2}^+
+\end{align}
+With this, the semi-discrete scheme, \eqr{\ref{eq:dq-dt}}, on using
+the flux-jump conditions, can be written in terms of the fluctuations
+\begin{align}
+  \pfrac{Q_j}{t} = -\frac{1}{\Delta x}\left( A^+\Delta Q_{j-1/2} + A^-\Delta Q_{j+1/2} \right).
+  \label{eq:first-order}
+\end{align}
+Here, as described above the fluctuations must be computed (for a
+nonlinear system) with Roe averages when using $q$-waves, and either a
+Roe or arithmetic average with using $f$-waves.
+
+\subsection{Higher-Order Schemes}
+
+To construct a higher-order method we need to reconstruct a polynomial
+in each cell using the cell averages in that cells and its neighboring
+cells. We will describe this reconstruction process below. A second-
+or higher-order reconstruction will mean the value of the recovered
+polynomial, $Q_j(x,t)$, in the cell is, in general, different on each
+edge of the cell $j$, that is $Q_j(x_{j+1/2},t) \ne
+Q_j(x_{j-1/2},t)$. In this case we must use the general formulas for
+the numerical flux \eqr{\ref{eq:num-flux-1}} or one of the pairs
+\eqr{\ref{eq:num-flux-2}}. If we use the latter pair alternately in
+the the semi-discrete scheme, \eqr{\ref{eq:dq-dt}} we will get
+\begin{align}
+  \pfrac{Q_j}{t}
+  = 
+  -\frac{1}{\Delta x}\left( A^+\Delta Q_{j-1/2} + A^-\Delta Q_{j+1/2} \right)
+  -\frac{1}{\Delta x}\left[ F(Q_{j+1/2}^-) - F(Q_{j-1/2}^+)  \right].
+  \label{eq:second-order}
+\end{align}
+The second term accounts for the variation of the flux inside the cell
+itself and gives higher order solutions. Of course, this term vanishes
+when the solution is constant inside a cell.
 
 \end{document}
 
