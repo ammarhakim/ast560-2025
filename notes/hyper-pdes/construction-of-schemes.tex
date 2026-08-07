@@ -123,6 +123,33 @@
 
 \tableofcontents
 
+\section{Introduction}
+
+In this technical note I provide a taxonomy and construction of base
+schemes for hyperbolic PDEs. In general, we can write such equations
+(in 1D, with generalization to multiple dimensions being obvious) in
+conservation law form
+\begin{align}
+  \pfrac{Q}{t} + \pfrac{F}{x} = s(Q). \label{eq:hyp-a}
+\end{align}
+Where $Q(x,t)$ is a vector of $m$ conserved quantities and $F(Q)$ is
+the flux function.  Some systems, like acoustics in heterogenous media
+can't be written in this form but instead as
+\begin{align}
+  \pfrac{V}{t} + A \pfrac{V}{x} = s(Q). \label{eq:hyp-b}
+\end{align}
+Hwre $A = A(Q)$ is a $m \times m$ matrix. We can always tranform
+\eqr{\ref{eq:hyp-a}} into \eqr{\ref{eq:hyp-b}}, but the reverse is not
+always possible. Ideally, we would like to be able to solve the
+equation in either form. Hence, for some systems we not have an
+explicit flux function. We will assume that the eigenvalues of the
+flux Jacobian or the $A$ matrix are real and that there is a complete
+set of eigenvectors
+
+The function $s(Q)$ is some source term. Additional, higher-order
+derivative terms can also be added to this basic form of the
+equations.
+
 \section{Exact Solution to 1D Linear Hyperbolic System}
 
 Consider the one-dimensional system of equations
@@ -247,7 +274,7 @@ the Riemann variables as
 w^{p,n+1}_j = w^{p,n}_j - \frac{\Delta t}{\Delta x}
 \left(
 G^p(w^{p,n}_{j+1},w^{p,n}_{j}) - G^p(w^{p,n}_{j},w^{p,n}_{j-1})
-\right)
+\right) \label{eq:wn1}
 \end{align}
 where the numerical flux function for the Riemann variables,
 $G^p(w_R,w_L)$, is defined as
@@ -258,6 +285,20 @@ Note that this choice of flux ensures that if $\lambda_p>0$ then
 $G^p(w_R,w_L) = \lambda_p w_L$ and if $\lambda_p < 0$ then
 $G^p(w_R,w_L) = \lambda_p w_R$, ensuring proper upwinding of the
 values at cell interfaces.
+
+To understand the effect of unwinding we plug the expression for the
+numerical flux into \eqr{\ref{eq:wn1}} to get
+\begin{align}
+w^{p,n+1}_j = w^{p,n}_j 
+- \frac{\Delta t}{\Delta x}\frac{\lambda_p}{2} \left(w^{p,n}_{j+1}-w^{p,n}_{j-1} \right)
++ \frac{\Delta t}{\Delta x}
+\frac{|\lambda_p|}{2} \left(w^{p,n}_{j+1} - 2 w^{p,n}_{j}  + w^{p,n}_{j-1} \right).
+\end{align}
+This expression shows that the spatial gradient is discretized using a
+central difference, with an additional \emph{numerical diffusion}
+term, the diffusion coefficient being $\Delta x|\lambda_p|$. Also note
+that each Riemann variable has, in general, a \emph{different}
+diffusion coefficient.
 
 To convert this to a scheme for $Q$ instead, multiply by $r^p$ and sum
 over $p$ to get
@@ -430,8 +471,9 @@ numerical flux is simply
   G(Q_L, Q_R) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right].
 \end{align}
 In general, this choice of numerical flux is not a good one: it has no
-numerical damping and hence leads to schemes that are unstable,
-specially as the flow structures get to the grid size.
+numerical damping and hence leads to schemes that are unstable or
+develop high-$k$ noise, specially as the flow structures get to the
+grid size.
 
 \subsection{Lax Flux}
 
