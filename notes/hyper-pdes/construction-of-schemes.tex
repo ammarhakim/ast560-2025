@@ -408,5 +408,66 @@ The second term accounts for the variation of the flux inside the cell
 itself and gives higher order solutions. Of course, this term vanishes
 when the solution is constant inside a cell.
 
+\section{Some Numerical Flux Functions}
+
+In the above sections we saw how to contruct numerical flux functions
+based on the eigensystem of the flux Jacobian. We don't always need to
+use the full eigensystem and can often create other flux functions
+that may be useful in some applications. We discuss two of these
+below. There are several others for specific equation systems which we
+will look at in later sections. Note that in all cases we must ensure
+the flux-jump condition is satisfied.
+
+\subsection{Central Flux}
+
+In this we simply choose the fluctuations to be
+\begin{align}
+  A^{\pm} \Delta Q_{L,R} = \frac{1}{2} \left[ F(Q_R) - F(Q_L) \right].
+\end{align}
+Clearly, this choice satisfies the flux-jump condition. With this, the
+numerical flux is simply
+\begin{align}
+  G(Q_L, Q_R) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right].
+\end{align}
+In general, this choice of numerical flux is not a good one: it has no
+numerical damping and hence leads to schemes that are unstable,
+specially as the flow structures get to the grid size.
+
+\subsection{Lax Flux}
+
+Lax fluxes are another universal choice in which we only need an
+estimate of the largest absolute eigenvalue. This is much easier to
+compute than the complete eigensystem. We define the fluctuations as
+\begin{align}
+  A^{\pm}\Delta Q_{L,R} = 
+  \frac{1}{2} \left[ F(Q_R) - F(Q_L) \right]
+  \pm  \frac{| \lambda |}{2} \left( Q_R - Q_L \right).
+\end{align}
+The second term in this expression adds numerical diffusion to the
+scheme, damping high-$k$ modes to a certain extent (though even more
+damping, provided by limiters, may be needed to capture shocks
+properly). Here, $| \lambda |$ is an estimate of the maximum
+eigenvalue at the interface. This can be computed, for example, as the
+absolute value of the maximum eigenvalues computed from the left and
+right states at the interface. Clearly, the flux-jump condition is
+satisfied. With this, the numerical flux becomes
+\begin{align}
+  G(Q_L, Q_R) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right]
+  -  \frac{| \lambda |}{2} \left( Q_R - Q_L \right).
+\end{align}
+If needed, a consistent set of waves and eigenvalues can also be
+defined that correspond to the Lax flux:
+\begin{align}
+  \mathcal{W}^{1,2} &= \frac{1}{2} \left( Q_R - Q_L \right) \mp \frac{1}{2 |\lambda |} \left[ F(Q_R) - F(Q_L) \right]
+\end{align}
+with $\lambda^{1,2} = \mp|\lambda |$.
+
+The Lax flux, in a sense, represents the opposite of the central flux:
+it adds \emph{too much} diffusion as opposed to no diffusion at all in
+the central flux. However, the Lax flux is often useful, specially as
+a fall-back numerical flux when positivity is violated, for example,
+or the eigensystem is too complicated to construct.
+
+
 \end{document}
 
