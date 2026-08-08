@@ -242,7 +242,7 @@ write this as
   \pfrac{Q_j}{t} + \frac{G(Q_{j+1/2}^+,Q_{j+1/2}^-) - G(Q_{j-1/2}^+,Q_{j-1/2}^-)}{\Delta x} = 0
   \label{eq:dq-dt}
 \end{align}
-where $G(Q_L,Q_R)$ the \emph{numerical-flux} function and
+where $G(Q_R,Q_L)$ the \emph{numerical-flux} function and
 $Q_{j\pm 1/2}^+$ and $Q_{j\pm 1/2}^-$ are recovered values just the
 right and left of the interface $j\pm 1/2$ respectively (see
 Fig.\thinspace\ref{fig:fv-lr}). For consistency with the exact form
@@ -250,9 +250,9 @@ Fig.\thinspace\ref{fig:fv-lr}). For consistency with the exact form
 Lipschitz continuous\footnote{This ensures that the derivative of the
   numerical-flux with each of its independent variables is
   \emph{bounded}.} and \emph{consistent}: when $Q_L = Q_R$ then
-$G(Q_L,Q_R)$ must reduce to the physical flux function, i.e.
+$G(Q_R,Q_L)$ must reduce to the physical flux function, i.e.
 \begin{align}
-  \lim_{Q_{L,R}\rightarrow Q} G(Q_L,Q_R) = F(Q).
+  \lim_{Q_{L,R}\rightarrow Q} G(Q_R,Q_L) = F(Q).
 \end{align}
 
 \section{Computing the Numerical Flux}
@@ -296,8 +296,8 @@ w^{p,n+1}_j = w^{p,n}_j
 \end{align}
 This expression shows that the spatial gradient is discretized using a
 central difference, with an additional \emph{numerical diffusion}
-term, the diffusion coefficient being $\Delta x|\lambda_p|$. Also note
-that each Riemann variable has, in general, a \emph{different}
+term, the diffusion coefficient being $\Delta x|\lambda_p|/2$. Also
+note that each Riemann variable has, in general, a \emph{different}
 diffusion coefficient.
 
 To convert this to a scheme for $Q$ instead, multiply by $r^p$ and sum
@@ -346,10 +346,31 @@ define these vectors as
 \begin{align}
   \mathcal{W}_{R,L}^p \equiv r^p (w_R^p-w_L^p) =  r^p  l^p(Q_R-Q_L) .
 \end{align}
+We will arrange the waves such that the corresponding eigenvalues are
+ordered, that is $\lambda^1 \le \lambda^2 \ldots \le \lambda^m$.
+
 In terms of the waves the fluctuations, \eqr{\ref{eq:fluct}}, can be
 computed as
 \begin{align}
   A^\pm\Delta Q_{R,L} = \sum_p \lambda^\pm_p \mathcal{W}_{R,L}^p.
+\end{align}
+Note that if we sum all the waves we get
+\begin{align}
+  \sum_p \mathcal{W}_{R,L}^p = \sum_p r^p (w_R^p-w_L^p) = \sum_p  r^p  l^p(Q_R-Q_L) = Q_R-Q_L.
+  \label{eq:state-jump}
+\end{align}
+That is, the sum of all the waves is just the jump in conserved
+variables. We will call this the \emph{state-jump} identity.
+
+We can now introduce \emph{intermediate states}, $Q_0^* = Q_L$,
+$Q^*_1, \ldots, Q_{p-1}^*$ , $Q_m^* = Q_R$, such that
+\begin{align}
+  Q^*_p &= Q_{p-1}^* + r^p l^p (Q_R-Q_L)
+\end{align}
+for $p=1,\ldots,m$. In terms of these intermediate states the waves
+can be written as
+\begin{align}
+  \mathcal{W}^p = Q_{p}^* - Q_{p-1}^*.
 \end{align}
 
 All the above manipulations were done for a system of linear
@@ -362,7 +383,7 @@ right/left eigenvectors?
 
 Let us define an averaged state
 \begin{align}
-  \overline{Q} = \overline{Q}(Q_L, Q_R)
+  \overline{Q} = \overline{Q}(Q_R, Q_L)
 \end{align}
 We can use this averaged state to compute the eigensystem of the flux
 Jacobian. The key consistency constraint we must ensure is that the
@@ -389,7 +410,9 @@ instead. To do this, we redefine the waves as
 Notice that we are projecting the jump in \emph{flux} rather than the
 conserved variables in this expression. We call this approach the
 \emph{$f$-wave approach} in contrast to the \emph{$q$-wave approach}
-in which we split instead the jump in conserved variables.
+in which we split instead the jump in conserved variables. Also note
+that in the $f$-wave approach the sum of all the waves is now the jump
+in \emph{flux} and not the state variables.
 
 Using these waves we now compute the fluctuations as
 \begin{align}
@@ -457,18 +480,18 @@ use the full eigensystem and can often create other flux functions
 that may be useful in some applications. We discuss two of these
 below. There are several others for specific equation systems which we
 will look at in later sections. Note that in all cases we must ensure
-the flux-jump condition is satisfied.
+the flux-jump and the state-jump conditions are satisfied.
 
 \subsection{Central Flux}
 
 In this we simply choose the fluctuations to be
 \begin{align}
-  A^{\pm} \Delta Q_{L,R} = \frac{1}{2} \left[ F(Q_R) - F(Q_L) \right].
+  A^{\pm} \Delta Q_{R,L} = \frac{1}{2} \left[ F(Q_R) - F(Q_L) \right].
 \end{align}
 Clearly, this choice satisfies the flux-jump condition. With this, the
 numerical flux is simply
 \begin{align}
-  G(Q_L, Q_R) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right].
+  G(Q_R, Q_L) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right].
 \end{align}
 In general, this choice of numerical flux is not a good one: it has no
 numerical damping and hence leads to schemes that are unstable or
@@ -481,7 +504,7 @@ Lax fluxes are another universal choice in which we only need an
 estimate of the largest absolute eigenvalue. This is much easier to
 compute than the complete eigensystem. We define the fluctuations as
 \begin{align}
-  A^{\pm}\Delta Q_{L,R} = 
+  A^{\pm}\Delta Q_{R,L} = 
   \frac{1}{2} \left[ F(Q_R) - F(Q_L) \right]
   \pm  \frac{| \lambda |}{2} \left( Q_R - Q_L \right).
 \end{align}
@@ -494,15 +517,21 @@ absolute value of the maximum eigenvalues computed from the left and
 right states at the interface. Clearly, the flux-jump condition is
 satisfied. With this, the numerical flux becomes
 \begin{align}
-  G(Q_L, Q_R) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right]
+  G(Q_R, Q_L) = \frac{1}{2} \left[ F(Q_R) + F(Q_L) \right]
   -  \frac{| \lambda |}{2} \left( Q_R - Q_L \right).
 \end{align}
 If needed, a consistent set of waves and eigenvalues can also be
 defined that correspond to the Lax flux:
 \begin{align}
-  \mathcal{W}^{1,2} &= \frac{1}{2} \left( Q_R - Q_L \right) \mp \frac{1}{2 |\lambda |} \left[ F(Q_R) - F(Q_L) \right]
+  \mathcal{W}^{1,2}_{R,L} &= \frac{1}{2} \left( Q_R - Q_L \right) \mp \frac{1}{2 |\lambda |} \left[ F(Q_R) - F(Q_L) \right]
 \end{align}
 with $\lambda^{1,2} = \mp|\lambda |$.
+
+For the Lax flux it is easy to see that there is a single intermediate
+state given by
+\begin{align}
+  Q^* = \frac{1}{2}\left( Q_R + Q_L\right) - \frac{1}{2 |\lambda |} \left[ F(Q_R) - F(Q_L) \right].
+\end{align}
 
 The Lax flux, in a sense, represents the opposite of the central flux:
 it adds \emph{too much} diffusion as opposed to no diffusion at all in
